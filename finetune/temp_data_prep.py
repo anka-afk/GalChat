@@ -1,22 +1,14 @@
 import json
 
-# 读取原始数据文件
-input_file = "finetune/atri.json"  # 输入文件路径
-output_file = "finetune/cleaned_atri.jsonl"  # 输出文件路径
-
-# 解析 JSON 数据
+input_file = "finetune/atri.json"
+output_file = "finetune/cleaned_atri.jsonl"
 with open(input_file, "r", encoding="utf-8") as f:
     raw_data = json.load(f)
 
 cleaned_data = []
-
-# 遍历原始数据
 for dialog_str in raw_data:
     try:
-        # 解析 JSON 格式的字符串
         dialog = json.loads(dialog_str.replace("“", '"').replace("”", '"'))
-
-        # 确保格式正确
         messages = []
         for entry in dialog:
             role = entry["role"]
@@ -24,7 +16,6 @@ for dialog_str in raw_data:
             if role in ["user", "assistant"]:
                 messages.append({"role": role, "content": content})
 
-        # 生成 `system prompt`
         system_prompt = {
             "role": "system",
             "content": (
@@ -35,13 +26,11 @@ for dialog_str in raw_data:
             ),
         }
 
-        # 组织新的 JSON 结构
         cleaned_data.append({"messages": [system_prompt] + messages})
 
     except Exception as e:
         print(f"解析错误：{e}")
 
-# 写入新的 JSONL 文件
 with open(output_file, "w", encoding="utf-8") as f:
     for entry in cleaned_data:
         f.write(json.dumps(entry, ensure_ascii=False) + "\n")
